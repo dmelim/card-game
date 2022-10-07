@@ -1,16 +1,34 @@
 import type { GetStaticProps, NextPage } from "next";
+import { BaseSyntheticEvent, MouseEventHandler, useState } from "react";
 
 type Props = {
-  selectedDeck: "";
-  enemyDeck: "";
+  selectedDeck: [];
+  enemyDeck: [];
 };
 
 const Game = ({ selectedDeck, enemyDeck }: Props) => {
+  const [selectedCard, setSelectedCard] = useState("");
+  function getCardHandler(event: BaseSyntheticEvent) {
+    setSelectedCard(event.target.innerHTML);
+  }
   return (
-    <div>
-      <h1>{selectedDeck.toString()}</h1>
-      <h1>{enemyDeck.toString()}</h1>
-    </div>
+    <>
+      <div className="flex flex-row">
+        {selectedDeck.map((card) => (
+          <p key={card} className="mx-3 uppercase" onClick={getCardHandler}>
+            {card}
+          </p>
+        ))}
+      </div>
+      <div className="flex flex-row ">
+        {enemyDeck.map((card) => (
+          <p key={card} className="mx-3 uppercase">
+            {card}
+          </p>
+        ))}
+      </div>
+      <div>{selectedCard}</div>
+    </>
   );
 };
 

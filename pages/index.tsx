@@ -1,20 +1,30 @@
 import type { GetStaticProps } from "next";
-import { ELEMENTS_MAP } from "../helpers/damage-map";
+import { ELEMENTS_MAP, TYPE } from "../helpers/damage-map";
 type Props = {
-  fire: { weakness: string; strength: string };
+  elements: TYPE;
 };
-const Home = ({ fire }: Props) => {
+const Home = ({ elements }: Props) => {
+  Object.entries(elements).map(([key, value]) => {
+    console.log(key, value);
+  });
   return (
     <div>
-      <h1>{fire.weakness}</h1>
+      {Object.keys(elements).map((key: keyof TYPE) => (
+        <div key={key}>
+          <div className="text-center text-2xl font-bold uppercase">{key}</div>
+          <div className="text-center">Weakness: {elements[key].weakness}</div>
+          <div className="text-center">Strength: {elements[key].strength}</div>
+        </div>
+      ))}
     </div>
   );
 };
 
 export const getStaticProps: GetStaticProps = async () => {
-  const fire = ELEMENTS_MAP.fire;
+  const elements = ELEMENTS_MAP;
+
   return {
-    props: { element: fire },
+    props: { elements: elements },
   };
 };
 
