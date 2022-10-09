@@ -1,5 +1,5 @@
-import type { GetStaticProps, NextPage } from "next";
-import { BaseSyntheticEvent, MouseEventHandler, useState } from "react";
+import type { GetStaticProps } from "next";
+import { BaseSyntheticEvent, useState } from "react";
 
 type Props = {
   selectedDeck: [];
@@ -7,19 +7,41 @@ type Props = {
 };
 
 const Game = ({ selectedDeck, enemyDeck }: Props) => {
+  let cardNum: number = 4;
   const [selectedCard, setSelectedCard] = useState("");
   const [enemyCard, setEnemyCard] = useState("");
-  const [enemyDeckS, setEnemyDeckS] = useState(enemyDeck);
+  // This use state is different because typescript would assume this was a "never[]", so I definied the generic use state gives.
+  const [enemyDeckS, setEnemyDeckS] = useState<string[]>(enemyDeck);
   const [gameStart, setGameStart] = useState(true);
+  const [cardNumber, setCardNumber] = useState(cardNum);
 
+  // The same logic that removes enemy cards of the deck needs to be applied to the player deck
   function getCardHandler(event: BaseSyntheticEvent) {
     setSelectedCard(event.target.innerHTML);
   }
+
   function selectEnemyCard() {
-    const random = Math.floor(Math.random() * 5);
-    setEnemyCard(enemyDeck[random]);
-    //setEnemyDeckS(); =>  Estava a tentar remover a carta jogada do deck
-    console.log(enemyDeckS);
+    // if clauses to guareente some conditions are met.
+    if (
+      selectedCard === "" ||
+      selectedCard === null ||
+      selectedCard === undefined
+    ) {
+      console.log("select a card to play!");
+      return;
+    }
+    const random = Math.floor(Math.random() * cardNumber);
+    const chosenEnemyCard = enemyDeckS[random];
+    setEnemyCard(chosenEnemyCard);
+    setEnemyDeckS((current) =>
+      current.filter((card) => card != chosenEnemyCard)
+    );
+    if (cardNumber !== 0) {
+      setCardNumber((current) => current - 1);
+    }
+    if (enemyDeckS.length === 0) {
+      setGameStart(true);
+    }
   }
   function gameStartHandler() {
     selectEnemyCard();
@@ -29,8 +51,8 @@ const Game = ({ selectedDeck, enemyDeck }: Props) => {
     /*  if (selectedCard.strength == enemyCard.type) {
       console.log("win");
     } */
-    console.log(enemyCard, selectedCard);
-    selectEnemyCard;
+    console.log(enemyCard + " vs " + selectedCard);
+    selectEnemyCard();
   }
   return (
     <>
@@ -44,7 +66,7 @@ const Game = ({ selectedDeck, enemyDeck }: Props) => {
         ))}
       </div>
       <div className="flex flex-row place-content-center">
-        {enemyDeck.map((card) => (
+        {enemyDeckS.map((card) => (
           <p key={card} className="mx-3 uppercase">
             {card}
           </p>
