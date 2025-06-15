@@ -1,3 +1,5 @@
+export type CardElement = "fire" | "water" | "earth" | "air" | "dark" | "light";
+
 export type CardType = {
   id: string;
   name: string;
@@ -5,4 +7,5 @@ export type CardType = {
   attack: number;
   mana: number;
   description: string;
+  element: CardElement;
 };
