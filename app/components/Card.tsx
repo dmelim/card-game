@@ -10,6 +10,7 @@ type Props = {
   description: string;
   name: string;
   element: Element;
+  disabled?: boolean;
 };
 
 const elementBg: Record<Element, string> = {
@@ -51,12 +52,17 @@ export function Card({
   description,
   name,
   element,
+  disabled = false,
 }: Props) {
   return (
     <div
-      className={`select-none pointer-events-auto w-48 h-72 rounded-xl overflow-hidden border border-slate-700 shadow-md flex flex-col ${
-        element === "light" ? "text-black" : "text-white"
-      } bg-gradient-to-b ${elementBg[element]}`}
+      className={`select-none pointer-events-auto w-48 h-72 rounded-xl overflow-hidden border border-slate-700 shadow-md flex flex-col transition-transform duration-200 ${
+        disabled
+          ? "opacity-50 grayscale cursor-not-allowed"
+          : "hover:cursor-pointer hover:-translate-y-1"
+      } ${element === "light" ? "text-black" : "text-white"} bg-gradient-to-b ${
+        elementBg[element]
+      }`}
     >
       <div className="relative h-70 w-full">
         <Image
