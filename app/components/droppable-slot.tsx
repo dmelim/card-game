@@ -8,7 +8,9 @@ type Props = {
 };
 
 export function DroppableSlot({ index, card }: Props) {
-  const { setNodeRef } = useDroppable({ id: `slot-${index}` });
+  const { setNodeRef } = useDroppable({
+    id: `slot-${index}`,
+  });
 
   return (
     <div ref={setNodeRef}>

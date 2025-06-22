@@ -1,4 +1,6 @@
 import { create } from "zustand";
+import { CardType } from "../types/card-types";
+import { cardSet } from "../card-set";
 
 type Turn = "player" | "enemy";
 
@@ -12,17 +14,30 @@ type MatchState = {
   enemy: Stats;
   turn: Turn;
 
-  playerBoard: string[];
-  enemyBoard: string[];
+  playerBoard: (CardType | null)[];
+  enemyBoard: (CardType | null)[];
+
+  playerHand: CardType[];
+  enemyHand: CardType[];
 
   roundNumber: number;
 
+  setHand: (target: "player" | "enemy", hand: CardType[]) => void;
+
+  removeCardFromHand: (target: "player" | "enemy", cardId: string) => void;
+
   setTurn: (turn: Turn) => void;
   changeHealth: (target: "player" | "enemy", amount: number) => void;
-  changeMana: (target: "player" | "enemy", amount: number) => void;
+  updateMana: (target: "player" | "enemy" | "both", delta: number) => void;
 
-  addCardToBoard: (target: "player" | "enemy", cardId: string) => void;
-  removeCardFromBoard: (target: "player" | "enemy", cardId: string) => void;
+  addCardToBoard: (
+    target: "player" | "enemy",
+    card: CardType,
+    index: number
+  ) => void;
+
+  removeCardFromBoard: (target: "player" | "enemy", index: number) => void;
+
   clearBoard: () => void;
 
   resetMatch: () => void;
@@ -31,12 +46,15 @@ type MatchState = {
 };
 
 export const useMatchStore = create<MatchState>((set) => ({
-  player: { health: 30, mana: 0 },
-  enemy: { health: 30, mana: 0 },
+  player: { health: 30, mana: 1 },
+  enemy: { health: 30, mana: 1 },
   turn: "player",
 
-  playerBoard: [],
-  enemyBoard: [],
+  playerBoard: [null, null, null, null],
+  enemyBoard: [null, null, null, null],
+
+  playerHand: cardSet.slice(0, 5),
+  enemyHand: cardSet.slice(0, 5),
 
   roundNumber: 1,
 
@@ -49,24 +67,57 @@ export const useMatchStore = create<MatchState>((set) => ({
         health: Math.max(0, state[target].health + amount),
       },
     })),
-
-  changeMana: (target, amount) =>
-    set((state) => ({
-      [target]: {
-        ...state[target],
-        mana: Math.max(0, state[target].mana + amount),
-      },
+  setHand: (target, hand) =>
+    set(() => ({
+      [`${target}Hand`]: hand,
     })),
-
-  addCardToBoard: (target, cardId) =>
+  removeCardFromHand: (target, cardId) =>
     set((state) => ({
-      [`${target}Board`]: [...state[`${target}Board`], cardId],
+      [`${target}Hand`]: state[`${target}Hand`].filter(
+        (card) => card.id !== cardId
+      ),
     })),
+  updateMana: (target, delta) =>
+    set((state) => {
+      if (target === "both") {
+        return {
+          player: {
+            ...state.player,
+            mana: Math.max(0, state.player.mana + delta),
+          },
+          enemy: {
+            ...state.enemy,
+            mana: Math.max(0, state.enemy.mana + delta),
+          },
+        };
+      }
 
-  removeCardFromBoard: (target, cardId) =>
-    set((state) => ({
-      [`${target}Board`]: state[`${target}Board`].filter((id) => id !== cardId),
-    })),
+      return {
+        [target]: {
+          ...state[target],
+          mana: Math.max(0, state[target].mana + delta),
+        },
+      };
+    }),
+
+  addCardToBoard: (target, card, index) =>
+    set((state) => {
+      const board = [...state[`${target}Board`]];
+      if (board[index]) return {};
+      board[index] = card;
+      return {
+        [`${target}Board`]: board,
+      };
+    }),
+
+  removeCardFromBoard: (target, index) =>
+    set((state) => {
+      const board = [...state[`${target}Board`]];
+      board[index] = null;
+      return {
+        [`${target}Board`]: board,
+      };
+    }),
 
   clearBoard: () =>
     set({
@@ -79,11 +130,13 @@ export const useMatchStore = create<MatchState>((set) => ({
 
   resetMatch: () =>
     set({
-      player: { health: 30, mana: 0 },
-      enemy: { health: 30, mana: 0 },
+      player: { health: 30, mana: 1 },
+      enemy: { health: 30, mana: 1 },
       turn: "player",
-      playerBoard: [],
-      enemyBoard: [],
+      playerBoard: [null, null, null, null],
+      enemyBoard: [null, null, null, null],
+      playerHand: cardSet.slice(0, 5),
+      enemyHand: cardSet.slice(0, 5),
       roundNumber: 1,
     }),
 }));

@@ -12,33 +12,42 @@ import { TurnTracker } from "../components/turn-tracker";
 import { useMatchStore } from "../stores/match-store";
 import { useGameEngine } from "../hooks/use-game-engine";
 
-const enemy = {
+const enemyProfile = {
   name: "Monster",
   image: "https://picsum.photos/seed/monster/64",
-  health: 30,
-  mana: 0,
 };
 
-const player = {
+const playerProfile = {
   name: "You",
   image: "https://picsum.photos/seed/player/64",
-  health: 30,
-  mana: 0,
 };
 
 export default function PlayPage() {
-  const [playerHand, setPlayerHand] = useState(cardSet.slice(0, 5));
-  const [playerBoard, setPlayerBoard] = useState<(CardType | null)[]>([
-    null,
-    null,
-    null,
-    null,
-  ]);
+  const playerBoard = useMatchStore((s) => s.playerBoard);
+  const addCardToBoard = useMatchStore((s) => s.addCardToBoard);
+  const removeCardFromBoard = useMatchStore((s) => s.removeCardFromBoard);
+  const playerHand = useMatchStore((s) => s.playerHand);
+  const removeCardFromHand = useMatchStore((s) => s.removeCardFromHand);
+  const updateMana = useMatchStore((s) => s.updateMana);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
 
   const turn = useMatchStore((s) => s.turn);
   const round = useMatchStore((s) => s.roundNumber);
+  const playerStats = useMatchStore((s) => s.player);
+  const enemyStats = useMatchStore((s) => s.enemy);
+
   const { endTurn } = useGameEngine();
+
+  const enemy = {
+    ...enemyProfile,
+    health: enemyStats.health,
+    mana: enemyStats.mana,
+  };
+  const player = {
+    ...playerProfile,
+    health: playerStats.health,
+    mana: playerStats.mana,
+  };
 
   function handleDragStart(event: any) {
     setActiveCardId(event.active.id);
@@ -53,16 +62,17 @@ export default function PlayPage() {
     if (isNaN(toIndex)) return;
 
     const card = playerHand[fromIndex];
-    if (!card || playerBoard[toIndex]) return;
+    if (!card) return;
 
-    const newBoard = [...playerBoard];
-    newBoard[toIndex] = card;
+    const playerBoard = useMatchStore.getState().playerBoard;
+    if (playerBoard[toIndex]) return;
 
-    const newHand = [...playerHand];
-    newHand.splice(fromIndex, 1);
+    updateMana("player", -card.mana);
 
-    setPlayerBoard(newBoard);
-    setPlayerHand(newHand);
+    addCardToBoard("player", card, toIndex);
+
+    removeCardFromHand("player", card.id);
+
     setActiveCardId(null);
   }
 

@@ -4,6 +4,7 @@ import Image from "next/image";
 type Element = "fire" | "water" | "earth" | "air" | "dark" | "light";
 
 type Props = {
+  id: string;
   image: string;
   attack: number;
   mana: number;
@@ -46,6 +47,7 @@ const elementNameBg: Record<Element, string> = {
 };
 
 export function Card({
+  id,
   image,
   attack,
   mana,
@@ -58,11 +60,12 @@ export function Card({
     <div
       className={`select-none pointer-events-auto w-48 h-72 rounded-xl overflow-hidden border border-slate-700 shadow-md flex flex-col transition-transform duration-200 ${
         disabled
-          ? "opacity-50 grayscale cursor-not-allowed"
+          ? "cursor-not-allowed"
           : "hover:cursor-pointer hover:-translate-y-1"
       } ${element === "light" ? "text-black" : "text-white"} bg-gradient-to-b ${
         elementBg[element]
       }`}
+      id={id}
     >
       <div className="relative h-70 w-full">
         <Image
