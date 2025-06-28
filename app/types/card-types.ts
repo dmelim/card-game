@@ -8,4 +8,5 @@ export type CardType = {
   mana: number;
   description: string;
   element: CardElement;
+  enemy?: boolean;
 };

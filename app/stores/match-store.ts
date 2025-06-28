@@ -16,6 +16,8 @@ type MatchState = {
 
   playerBoard: (CardType | null)[];
   enemyBoard: (CardType | null)[];
+  selectedCard: CardType | null;
+  selectedEnemyCard: CardType | null;
 
   playerHand: CardType[];
   enemyHand: CardType[];
@@ -36,7 +38,12 @@ type MatchState = {
     index: number
   ) => void;
 
-  removeCardFromBoard: (target: "player" | "enemy", index: number) => void;
+  removeCardFromBoard: (target: "player" | "enemy", cardId: string) => void;
+
+  setSelectedCard: (card: CardType | null) => void;
+  setSelectedEnemyCard: (card: CardType | null) => void;
+
+  cleanSelectedCards: () => void;
 
   clearBoard: () => void;
 
@@ -51,10 +58,28 @@ export const useMatchStore = create<MatchState>((set) => ({
   turn: "player",
 
   playerBoard: [null, null, null, null],
-  enemyBoard: [null, null, null, null],
+  enemyBoard: [
+    {
+      id: "foxflame",
+      name: "Foxflame Cub",
+      image: "/foxflame.webp",
+      attack: 1,
+      mana: 1,
+      element: "fire",
+      description: "A fiery little beast with quick paws and quicker flames.",
+      enemy: true,
+    },
+
+    null,
+    null,
+    null,
+  ],
 
   playerHand: cardSet.slice(0, 5),
   enemyHand: cardSet.slice(0, 5),
+
+  selectedCard: null,
+  selectedEnemyCard: null,
 
   roundNumber: 1,
 
@@ -110,10 +135,11 @@ export const useMatchStore = create<MatchState>((set) => ({
       };
     }),
 
-  removeCardFromBoard: (target, index) =>
+  removeCardFromBoard: (target, cardId) =>
     set((state) => {
-      const board = [...state[`${target}Board`]];
-      board[index] = null;
+      const board = state[`${target}Board`].map((card) =>
+        card?.id === cardId ? null : card
+      );
       return {
         [`${target}Board`]: board,
       };
@@ -127,6 +153,22 @@ export const useMatchStore = create<MatchState>((set) => ({
 
   incrementRound: () =>
     set((state) => ({ roundNumber: state.roundNumber + 1 })),
+
+  setSelectedCard: (card) =>
+    set((state) => ({
+      selectedCard: state.selectedCard?.id === card?.id ? null : card,
+    })),
+
+  setSelectedEnemyCard: (card) =>
+    set((state) => ({
+      selectedEnemyCard: state.selectedEnemyCard?.id === card?.id ? null : card,
+    })),
+
+  cleanSelectedCards: () =>
+    set(() => ({
+      selectedCard: null,
+      selectedEnemyCard: null,
+    })),
 
   resetMatch: () =>
     set({

@@ -24,6 +24,7 @@ const playerProfile = {
 
 export default function PlayPage() {
   const playerBoard = useMatchStore((s) => s.playerBoard);
+  const enemyBoard = useMatchStore((s) => s.enemyBoard);
   const addCardToBoard = useMatchStore((s) => s.addCardToBoard);
   const removeCardFromBoard = useMatchStore((s) => s.removeCardFromBoard);
   const playerHand = useMatchStore((s) => s.playerHand);
@@ -89,19 +90,15 @@ export default function PlayPage() {
         />
       </div>
 
-      <div className="flex gap-2 opacity-50">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="w-48 h-72 bg-slate-800/20 rounded-xl" />
-        ))}
-      </div>
+      <PlayerBoard board={enemyBoard} enemy={true} />
 
       <div className="w-full h-1 my-4 bg-gradient-to-r from-slate-700 via-slate-900 to-slate-700 rounded-full" />
 
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        <PlayerBoard board={playerBoard} />
+        <PlayerBoard board={playerBoard} enemy={false} />
         <PlayerHand hand={playerHand} activeCardId={activeCardId} />
         <DragOverlay>
-          {activeCard ? <Card {...activeCard} /> : null}
+          {activeCard ? <Card {...activeCard} isSelected={false} /> : null}
         </DragOverlay>
       </DndContext>
 

@@ -11,7 +11,9 @@ type Props = {
   description: string;
   name: string;
   element: Element;
+  isSelected: boolean;
   disabled?: boolean;
+  enemy?: boolean;
 };
 
 const elementBg: Record<Element, string> = {
@@ -54,11 +56,19 @@ export function Card({
   description,
   name,
   element,
+  isSelected,
+  enemy,
   disabled = false,
 }: Props) {
   return (
     <div
-      className={`select-none pointer-events-auto w-48 h-72 rounded-xl overflow-hidden border border-slate-700 shadow-md flex flex-col transition-transform duration-200 ${
+      className={`select-none pointer-events-auto w-48 h-72 rounded-xl overflow-hidden  ${
+        isSelected
+          ? enemy
+            ? "border-4 border-red-500"
+            : "border-4 border-blue-500"
+          : "border border-slate-700"
+      } shadow-md flex flex-col transition-transform duration-200 ${
         disabled
           ? "cursor-not-allowed"
           : "hover:cursor-pointer hover:-translate-y-1"
