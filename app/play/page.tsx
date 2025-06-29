@@ -30,6 +30,9 @@ export default function PlayPage() {
   const playerHand = useMatchStore((s) => s.playerHand);
   const removeCardFromHand = useMatchStore((s) => s.removeCardFromHand);
   const updateMana = useMatchStore((s) => s.updateMana);
+  const toggleEnemySelection = useMatchStore((s) => s.toggleEnemySelection);
+  const isEnemySelected = useMatchStore((s) => s.isEnemySelected);
+
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
 
   const turn = useMatchStore((s) => s.turn);
@@ -43,6 +46,7 @@ export default function PlayPage() {
     ...enemyProfile,
     health: enemyStats.health,
     mana: enemyStats.mana,
+    enemy: true,
   };
   const player = {
     ...playerProfile,
@@ -82,7 +86,15 @@ export default function PlayPage() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-between px-4 py-6 gap-6">
       <div className="w-full flex justify-between items-center px-4">
-        <PlayerStats {...enemy} />
+        <PlayerStats
+          {...enemy}
+          canAttack={
+            enemyBoard.filter((c) => c !== null).length === 0 &&
+            playerBoard.filter((c) => c !== null).length > 0
+          }
+          isSelected={isEnemySelected}
+          onClick={toggleEnemySelection}
+        />
         <TurnTracker
           currentTurn={turn}
           onEndTurn={endTurn}
@@ -103,7 +115,7 @@ export default function PlayPage() {
       </DndContext>
 
       <div className="w-full flex justify-start px-4">
-        <PlayerStats {...player} />
+        <PlayerStats {...player} canAttack={false} isSelected={false} />
       </div>
     </main>
   );

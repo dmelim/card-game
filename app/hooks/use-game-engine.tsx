@@ -16,6 +16,10 @@ export function useGameEngine() {
   const selectedEnemyCard = useMatchStore((s) => s.selectedEnemyCard);
   const removeCardFromBoard = useMatchStore((s) => s.removeCardFromBoard);
   const cleanSelectedCards = useMatchStore((s) => s.cleanSelectedCards);
+  const isEnemySelected = useMatchStore((s) => s.isEnemySelected);
+  const resetHasAttacked = useMatchStore((s) => s.resetHasAttacked);
+  const updateHasAttacked = useMatchStore((s) => s.updateHasAttacked);
+  const updateDefendeMode = useMatchStore((s) => s.updateDefendeMode);
 
   const manaMap = (round: number) => {
     return round <= 3 ? 1 : round <= 6 ? 2 : 3;
@@ -23,7 +27,7 @@ export function useGameEngine() {
 
   const onEndTurn = () => {
     incrementRound();
-    console.log(playerBoard.length, enemyBoard.length);
+
     updateMana(
       "player",
       manaMap(round) + playerBoard.filter((card) => card !== null).length
@@ -32,14 +36,16 @@ export function useGameEngine() {
       "enemy",
       manaMap(round) + enemyBoard.filter((card) => card !== null).length
     );
+    resetHasAttacked();
   };
 
   useEffect(() => {
     if (turn === "enemy") {
+      updateDefendeMode();
       const timer = setTimeout(() => {
         onEndTurn();
         setTurn("player");
-      }, 2000);
+      }, 5000);
 
       return () => clearTimeout(timer);
     }
@@ -58,10 +64,17 @@ export function useGameEngine() {
           removeCardFromBoard("player", selectedCard?.id);
           removeCardFromBoard("enemy", selectedEnemyCard?.id);
         }
+        updateHasAttacked("player", selectedCard.id);
+
         cleanSelectedCards();
       }
+      if (isEnemySelected && selectedCard) {
+        changeHealth("enemy", -selectedCard.attack);
+        cleanSelectedCards();
+        updateHasAttacked("player", selectedCard.id);
+      }
     }
-  }, [turn, selectedCard, selectedEnemyCard]);
+  }, [turn, selectedCard, selectedEnemyCard, isEnemySelected]);
 
   useEffect(() => {
     if (player.health <= 0) {

@@ -5,12 +5,28 @@ type Props = {
   image: string;
   health: number;
   mana: number;
+  canAttack: boolean;
+  isSelected: boolean;
+  onClick?: () => void;
 };
 
-export function PlayerStats({ name, image, health, mana }: Props) {
+export function PlayerStats({
+  name,
+  image,
+  health,
+  mana,
+  canAttack,
+  isSelected,
+  onClick,
+}: Props) {
+  const avatarClasses = (() => {
+    if (canAttack && isSelected) return "border-red-500";
+    if (canAttack) return "border-red-500 animate-pulse";
+    return "border-transparent";
+  })();
   return (
     <div className="flex items-center gap-4">
-      <Avatar>
+      <Avatar className={`border-2 ${avatarClasses}`} onClick={onClick}>
         <AvatarImage src={image} alt={name} />
         <AvatarFallback>{name.charAt(0)}</AvatarFallback>
       </Avatar>

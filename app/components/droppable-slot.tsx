@@ -6,18 +6,11 @@ import { CardType } from "../types/card-types";
 type Props = {
   index: number;
   card: (typeof cardSet)[0] | null;
-  onClick: (card: CardType) => void;
+  onClick: (card: CardType | null) => void;
   isSelected: boolean;
-  enemy?: boolean;
 };
 
-export function DroppableSlot({
-  index,
-  card,
-  onClick,
-  isSelected,
-  enemy,
-}: Props) {
+export function DroppableSlot({ index, card, onClick, isSelected }: Props) {
   const { setNodeRef } = useDroppable({
     id: `slot-${index}`,
   });

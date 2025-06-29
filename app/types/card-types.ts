@@ -9,4 +9,6 @@ export type CardType = {
   description: string;
   element: CardElement;
   enemy?: boolean;
+  hasAttacked?: boolean;
+  defenseMode?: boolean;
 };

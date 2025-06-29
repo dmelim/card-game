@@ -12,7 +12,8 @@ export function PlayerBoard({ board, enemy }: Props) {
   const selectedCard = useMatchStore((get) => get.selectedCard);
   const setSelectedEnemyCard = useMatchStore((get) => get.setSelectedEnemyCard);
   const selectedEnemyCard = useMatchStore((get) => get.selectedEnemyCard);
-  const onClick = (card: CardType) => {
+  const onClick = (card: CardType | null) => {
+    if (card?.hasAttacked) return;
     enemy ? setSelectedEnemyCard(card) : setSelectedCard(card);
   };
   useEffect(() => {}, [selectedCard, selectedEnemyCard]);
@@ -30,7 +31,6 @@ export function PlayerBoard({ board, enemy }: Props) {
               ? selectedEnemyCard !== null && selectedEnemyCard?.id === card?.id
               : selectedCard !== null && selectedCard?.id === card?.id
           }
-          enemy={enemy}
         />
       ))}
     </div>

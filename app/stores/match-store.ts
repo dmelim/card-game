@@ -22,6 +22,8 @@ type MatchState = {
   playerHand: CardType[];
   enemyHand: CardType[];
 
+  isEnemySelected: boolean;
+
   roundNumber: number;
 
   setHand: (target: "player" | "enemy", hand: CardType[]) => void;
@@ -39,17 +41,23 @@ type MatchState = {
   ) => void;
 
   removeCardFromBoard: (target: "player" | "enemy", cardId: string) => void;
+  updateHasAttacked: (target: "player" | "enemy", cardId: string) => void;
+  updateDefendeMode: () => void;
 
   setSelectedCard: (card: CardType | null) => void;
   setSelectedEnemyCard: (card: CardType | null) => void;
 
   cleanSelectedCards: () => void;
 
+  resetHasAttacked: () => void;
+
   clearBoard: () => void;
 
   resetMatch: () => void;
 
   incrementRound: () => void;
+
+  toggleEnemySelection: () => void;
 };
 
 export const useMatchStore = create<MatchState>((set) => ({
@@ -80,6 +88,7 @@ export const useMatchStore = create<MatchState>((set) => ({
 
   selectedCard: null,
   selectedEnemyCard: null,
+  isEnemySelected: false,
 
   roundNumber: 1,
 
@@ -129,7 +138,7 @@ export const useMatchStore = create<MatchState>((set) => ({
     set((state) => {
       const board = [...state[`${target}Board`]];
       if (board[index]) return {};
-      board[index] = card;
+      board[index] = { ...card, hasAttacked: false, defenseMode: false };
       return {
         [`${target}Board`]: board,
       };
@@ -143,6 +152,39 @@ export const useMatchStore = create<MatchState>((set) => ({
       return {
         [`${target}Board`]: board,
       };
+    }),
+
+  updateHasAttacked: (target, cardId) =>
+    set((state) => {
+      const board = state[`${target}Board`].map((c) =>
+        c?.id === cardId ? { ...c, hasAttacked: true } : c
+      );
+      return { [`${target}Board`]: board };
+    }),
+
+  resetHasAttacked: () =>
+    set((state) => {
+      const board = state.playerBoard.map((c) => {
+        if (!c) return null;
+        return {
+          ...c,
+          hasAttacked: false,
+        };
+      });
+      return { playerBoard: board };
+    }),
+
+  updateDefendeMode: () =>
+    set((state) => {
+      const board = state.playerBoard.map((c) => {
+        console.log("Updating defense mode", c);
+        if (!c) return null;
+        if (!c.hasAttacked) return { ...c, defenseMode: true };
+
+        return c;
+      });
+      console.log(board);
+      return { playerBoard: board };
     }),
 
   clearBoard: () =>
@@ -165,10 +207,14 @@ export const useMatchStore = create<MatchState>((set) => ({
     })),
 
   cleanSelectedCards: () =>
-    set(() => ({
+    set((state) => ({
       selectedCard: null,
       selectedEnemyCard: null,
+      isEnemySelected: false,
     })),
+
+  toggleEnemySelection: () =>
+    set((state) => ({ isEnemySelected: !state.isEnemySelected })),
 
   resetMatch: () =>
     set({
